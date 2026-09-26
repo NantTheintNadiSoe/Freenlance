@@ -1,0 +1,14 @@
+export type Currency = string;
+export type User = { id: string; email: string; displayName: string; avatarUrl: string | null; bio: string | null; headline: string | null; location: string | null; timezone: string; defaultCurrency: Currency; role: "CLIENT" | "FREELANCER" | "ADMIN"; status: string; hourlyRateMinor: number | null; availability: string; ratingAverage: number; ratingCount: number; createdAt: string; skills?: SkillLink[]; portfolioItems?: Portfolio[]; receivedReviews?: Review[] };
+export type Skill = { id: string; name: string; slug: string };
+export type SkillLink = { skill: Skill; proficiency?: string | null };
+export type Portfolio = { id: string; title: string; description: string | null; projectUrl: string | null; imageUrl: string | null; sortOrder: number };
+export type Job = { id: string; title: string; description: string; category: string; budgetType: string; budgetMinMinor: number; budgetMaxMinor: number; currency: Currency; experienceLevel: string; locationMode: string; location: string | null; status: string; createdAt: string; client: Pick<User, "id" | "displayName" | "avatarUrl" | "ratingAverage" | "ratingCount">; skills: SkillLink[]; _count?: { proposals: number } };
+export type Proposal = { id: string; coverLetter: string; proposedAmountMinor: number; currency: Currency; estimatedDays: number; status: string; createdAt: string; job: Pick<Job, "id" | "title" | "currency" | "status">; freelancer?: Pick<User, "id" | "displayName" | "avatarUrl" | "headline" | "ratingAverage" | "ratingCount"> };
+export type Contract = { id: string; title: string; description: string; agreedAmountMinor: number; currency: Currency; status: string; createdAt: string; updatedAt: string; job: { id: string; title: string; category?: string }; client: Pick<User, "id" | "displayName" | "avatarUrl">; freelancer: Pick<User, "id" | "displayName" | "avatarUrl">; reviews?: Review[]; conversations?: { id: string }[] };
+export type Conversation = { id: string; clientId: string; freelancerId: string; client: Pick<User, "id" | "displayName" | "avatarUrl">; freelancer: Pick<User, "id" | "displayName" | "avatarUrl">; messages?: Message[]; updatedAt: string };
+export type Message = { id: string; conversationId: string; senderId: string; body: string; readAt: string | null; createdAt: string };
+export type Notification = { id: string; type: string; title: string; body: string; targetType: string | null; targetId: string | null; readAt: string | null; createdAt: string };
+export type Review = { id: string; rating: number; title: string | null; comment: string; createdAt: string; author: Pick<User, "id" | "displayName" | "avatarUrl">; contract?: { title: string } };
+export type Session = { user: User; accessToken: string; refreshToken: string };
+export type ListMeta = { page: number; pageSize: number; total: number; totalPages: number };

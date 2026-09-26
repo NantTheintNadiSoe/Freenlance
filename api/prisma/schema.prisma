@@ -1,0 +1,248 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  passwordHash    String
+  displayName     String
+  avatarUrl       String?
+  bio             String?
+  headline        String?
+  location        String?
+  timezone        String        @default("Asia/Yangon")
+  defaultCurrency String        @default("USD")
+  role            String        @default("FREELANCER")
+  status          String        @default("ACTIVE")
+  hourlyRateMinor Int?
+  availability    String        @default("AVAILABLE")
+  ratingAverage   Float         @default(0)
+  ratingCount     Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  sessions        Session[]
+  skills          UserSkill[]
+  portfolioItems  PortfolioItem[]
+  jobs            Job[]         @relation("ClientJobs")
+  proposals       Proposal[]
+  clientContracts Contract[]    @relation("ClientContracts")
+  freelancerContracts Contract[] @relation("FreelancerContracts")
+  clientConversations Conversation[] @relation("ConversationClient")
+  freelancerConversations Conversation[] @relation("ConversationFreelancer")
+  sentMessages    Message[]
+  notifications   Notification[]
+  authoredReviews Review[]      @relation("AuthorReviews")
+  receivedReviews Review[]      @relation("RecipientReviews")
+  reports         Report[]
+  auditEvents     AuditEvent[]
+}
+
+model Session {
+  id               String   @id @default(cuid())
+  userId           String
+  refreshTokenHash String   @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  deviceName       String?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, revokedAt])
+}
+
+model Skill {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  slug      String      @unique
+  users     UserSkill[]
+  jobs      JobSkill[]
+}
+
+model UserSkill {
+  userId       String
+  skillId      String
+  proficiency  String?
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill        Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  @@id([userId, skillId])
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  projectUrl  String?
+  imageUrl    String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, sortOrder])
+}
+
+model Job {
+  id              String       @id @default(cuid())
+  clientId        String
+  title           String
+  description     String
+  category        String
+  budgetType      String       @default("FIXED")
+  budgetMinMinor  Int
+  budgetMaxMinor  Int
+  currency        String
+  experienceLevel String       @default("INTERMEDIATE")
+  locationMode    String       @default("REMOTE")
+  location        String?
+  deadline        DateTime?
+  status          String       @default("DRAFT")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  client          User         @relation("ClientJobs", fields: [clientId], references: [id], onDelete: Cascade)
+  skills          JobSkill[]
+  proposals       Proposal[]
+  contract        Contract?
+  conversations   Conversation[]
+  @@index([status, createdAt])
+  @@index([clientId, status])
+  @@index([currency, status])
+}
+
+model JobSkill {
+  jobId   String
+  skillId String
+  job     Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill   Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  @@id([jobId, skillId])
+}
+
+model Proposal {
+  id                 String   @id @default(cuid())
+  jobId              String
+  freelancerId       String
+  coverLetter        String
+  proposedAmountMinor Int
+  currency           String
+  estimatedDays      Int
+  status             String   @default("SUBMITTED")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  job                Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  freelancer         User     @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  contract           Contract?
+  @@unique([jobId, freelancerId])
+  @@index([freelancerId, status])
+}
+
+model Contract {
+  id                 String   @id @default(cuid())
+  jobId              String   @unique
+  proposalId         String   @unique
+  clientId           String
+  freelancerId       String
+  title              String
+  description        String
+  agreedAmountMinor  Int
+  currency           String
+  startDate          DateTime?
+  endDate            DateTime?
+  status             String   @default("PENDING")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  job                Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  proposal           Proposal @relation(fields: [proposalId], references: [id], onDelete: Restrict)
+  client             User     @relation("ClientContracts", fields: [clientId], references: [id], onDelete: Restrict)
+  freelancer         User     @relation("FreelancerContracts", fields: [freelancerId], references: [id], onDelete: Restrict)
+  conversations     Conversation[]
+  reviews            Review[]
+  @@index([clientId, status])
+  @@index([freelancerId, status])
+}
+
+model Conversation {
+  id           String    @id @default(cuid())
+  jobId        String?
+  contractId   String?
+  clientId     String
+  freelancerId String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  job          Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  contract     Contract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  client       User      @relation("ConversationClient", fields: [clientId], references: [id], onDelete: Cascade)
+  freelancer   User      @relation("ConversationFreelancer", fields: [freelancerId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  @@index([clientId, updatedAt])
+  @@index([freelancerId, updatedAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  @@index([conversationId, createdAt])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String
+  title      String
+  body       String
+  targetType String?
+  targetId   String?
+  readAt     DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, readAt, createdAt])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  contractId  String
+  authorId    String
+  recipientId String
+  rating      Int
+  title       String?
+  comment     String
+  createdAt   DateTime @default(now())
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  author      User     @relation("AuthorReviews", fields: [authorId], references: [id], onDelete: Cascade)
+  recipient   User     @relation("RecipientReviews", fields: [recipientId], references: [id], onDelete: Cascade)
+  @@unique([contractId, authorId])
+  @@index([recipientId, createdAt])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String
+  targetType  String
+  targetId    String
+  reason      String
+  description String?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  @@index([targetType, targetId])
+}
+
+model AuditEvent {
+  id           String   @id @default(cuid())
+  actorId      String?
+  action       String
+  resourceType String
+  resourceId   String?
+  metadataJson String?
+  createdAt    DateTime @default(now())
+  actor        User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  @@index([resourceType, resourceId, createdAt])
+}

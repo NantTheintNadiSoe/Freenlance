@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Archer",
+    "slug": "archer-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "archer",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": ["expo-router", "expo-secure-store"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.archer.marketplace"
+    },
+    "android": {
+      "package": "com.archer.marketplace"
+    }
+  }
+}

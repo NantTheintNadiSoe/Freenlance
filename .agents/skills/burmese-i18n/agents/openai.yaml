@@ -1,0 +1,4 @@
+interface:
+  display_name: "Burmese i18n"
+  short_description: "Build Burmese-friendly multilingual UI typography"
+  default_prompt: "Use $burmese-i18n to review or implement Burmese-aware multilingual UI styling and copy."

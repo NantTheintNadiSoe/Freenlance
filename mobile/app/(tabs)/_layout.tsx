@@ -1,0 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { colors } from "../../src/theme";
+
+export default function TabsLayout() {
+  return <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.primary, tabBarInactiveTintColor: colors.muted, tabBarLabelStyle: { fontSize: 11, fontWeight: "700", paddingBottom: 2 }, tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.line, height: 70, paddingBottom: 8, paddingTop: 8 } }}><Tabs.Screen name="index" options={{ title: "Home", tabBarIcon: ({ color, size, focused }) => <Ionicons color={color} name={focused ? "home" : "home-outline"} size={size} /> }} /><Tabs.Screen name="jobs" options={{ title: "Jobs", tabBarIcon: ({ color, size, focused }) => <Ionicons color={color} name={focused ? "briefcase" : "briefcase-outline"} size={size} /> }} /><Tabs.Screen name="contracts" options={{ title: "Contracts", tabBarIcon: ({ color, size, focused }) => <Ionicons color={color} name={focused ? "document-text" : "document-text-outline"} size={size} /> }} /><Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: ({ color, size, focused }) => <Ionicons color={color} name={focused ? "person" : "person-outline"} size={size} /> }} /></Tabs>;
+}

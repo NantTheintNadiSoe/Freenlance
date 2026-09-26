@@ -1,0 +1,2 @@
+import type { Config } from "tailwindcss";
+export default { darkMode: "class", content: ["./index.html", "./src/**/*.{ts,tsx}"], theme: { extend: { colors: { ink: "#14213d", cream: "#fbfaf7", amber: { 50: "#fff8e7", 100: "#ffefbd", 500: "#e8a317", 600: "#c98208" }, ocean: { 50: "#edf8fa", 100: "#d9f0f3", 500: "#23828c", 600: "#18656d" } }, boxShadow: { soft: "0 18px 50px rgba(20,33,61,.08)" }, fontFamily: { sans: ["DM Sans", "ui-sans-serif", "system-ui"] } } }, plugins: [] } satisfies Config;

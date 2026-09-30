@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Coverage Check"
+  short_description: "Create read-only timestamped coverage findings reports"
+  default_prompt: "Inspect this repository's tests and critical workflows without writing or running tests, then save an actionable timestamped findings report under test-coverage-check/."

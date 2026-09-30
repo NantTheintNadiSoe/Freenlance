@@ -6,9 +6,10 @@ export const notFound: RequestHandler = (_request, _response, next) => {
 };
 
 export const errorHandler: ErrorRequestHandler = (error, request, response, _next) => {
-  const statusCode = error?.statusCode ?? 500;
-  const code = error?.code ?? "INTERNAL_SERVER_ERROR";
-  const fields = error instanceof ZodError ? error.flatten().fieldErrors : undefined;
+  const isValidationError = error instanceof ZodError;
+  const statusCode = isValidationError ? 400 : error?.statusCode ?? 500;
+  const code = isValidationError ? "VALIDATION_ERROR" : error?.code ?? "INTERNAL_SERVER_ERROR";
+  const fields = isValidationError ? error.flatten().fieldErrors : undefined;
   const message = error instanceof ZodError ? "The request is invalid" : error?.message ?? "Unexpected server error";
 
   if (statusCode >= 500) request.logError?.(error);
